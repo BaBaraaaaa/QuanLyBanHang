@@ -189,7 +189,7 @@
 													<th:block th:each="y : ${listCategory}">
 														<li><a th:href="@{/category/{id}(id=${y.id})}"
 															th:text="${y.category_Name}"></a></li>
-<!--													</th:block>-->
+													</th:block>
 												</ul>
 											</div>
 										</div>
@@ -329,9 +329,19 @@
 						<th:block th:each="y : ${listProduct.content}">
 							<div class="col-lg-4 col-md-6 col-sm-6">
 								<div class="product__item">
+<!--									<img class="product__item__pic set-bg"-->
+<!--										 th:data-setbg="${y.productImage[0].url_Image}"-->
+<!--										 th:if="${y.productImage != null and-->
+<!--										y.productImage.size() > 0}"-->
+<!--									>-->
 									<div class="product__item__pic set-bg"
-										th:data-setbg="${y.productImage[0].url_Image}">
-										<ul class="product__hover">
+										 th:if="${y.productImage != null and y.productImage.size() > 0}"
+										 th:data-setbg="${y.productImage[0].url_Image}">
+<!--									<img class="product__item__pic set-bg"-->
+<!--										 th:if="${y.productImage != null and y.productImage.size() > 0}"-->
+<!--										 th:src="${y.productImage[0].url_Image}">-->
+
+									<ul class="product__hover">
 											<li><a href="#"><img src="/img/icon/heart.png"
 													alt=""></a></li>
 											<li><a href="#"><img src="/img/icon/compare.png"
@@ -339,6 +349,7 @@
 											<li><a th:href="@{/productDetail/{id}(id=${y.id})}"><img
 													src="/img/icon/search.png" alt=""></a></li>
 										</ul>
+<!--									</img>-->
 									</div>
 									<div class="product__item__text">
 										<h6 th:text="${y.product_Name}"></h6>

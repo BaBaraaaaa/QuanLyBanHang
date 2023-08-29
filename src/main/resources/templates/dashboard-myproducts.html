@@ -212,10 +212,12 @@
 									</div>
 									<div class="buttons-to-right">
 										<a th:href="@{/dashboard-myproducts/edit/{id}(id=${y.id})}" class="button gray"><i
-												class="sl sl-icon-note"></i> Edit</a> <a href="#"
+												class="sl sl-icon-note"></i> Edit</a>
+										<a th:href="@{/dashboard-myproducts/delete/{id}(id=${y.id})}"
 										 class="button gray"><i class="sl sl-icon-close"></i>
 										Delete</a>
 									</div>
+
 								</li>
 							</th:block>
 						</ul>

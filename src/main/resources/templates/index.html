@@ -166,21 +166,28 @@
     </div>
     <div class="row product__filter">
       <th:block th:each="y : ${Top12ProductBestSellers}">
-        <div
-                class="col-lg-3 col-md-6 col-sm-6 col-md-6 col-sm-6 mix hot-sales"
-                style="display: none;">
-          <div class="product__item sale">
-            <div class="product__item__pic set-bg"
-                 th:data-setbg="${y.productImage[0].url_Image}">
-              <span class="label">Hot</span>
-              <ul class="product__hover">
-                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                <li><a href="#"><img src="img/icon/compare.png" alt="">
-                  <span>Compare</span></a></li>
-                <li><a th:href="@{/productDetail/{id}(id=${y.id})}"><img
-                        src="img/icon/search.png" alt=""></a></li>
-              </ul>
-            </div>
+        <div  class="col-lg-3 col-md-6 col-sm-6 col-md-6 col-sm-6 mix hot-sales"  style="display: none;">
+          <div class="product__item sale"   th:if="${y.productImage != null and y.productImage.size() > 0}">
+<!--            <div class="product__item__pic set-bg" th:data-setbg="${y.productImage[0].url_Image}">-->
+            <th:block th:each="image : ${y.productImage}">
+              <div class="product__item__pic set-bg" th:if="${image.url_Image != null}" th:data-setbg="${image.url_Image}">
+                <span class="label">Hot</span>
+                <ul class="product__hover">
+                  <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
+                  <li><a href="#"><img src="img/icon/compare.png" alt=""><span>Compare</span></a></li>
+                  <li><a th:href="@{/productDetail/{id}(id=${y.id})}"><img src="img/icon/search.png" alt=""></a></li>
+                </ul>
+              </div>
+            </th:block>
+<!--              <span class="label">Hot</span>-->
+<!--              <ul class="product__hover">-->
+<!--                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>-->
+<!--                <li><a href="#"><img src="img/icon/compare.png" alt="">-->
+<!--                  <span>Compare</span></a></li>-->
+<!--                <li><a th:href="@{/productDetail/{id}(id=${y.id})}"><img-->
+<!--                        src="img/icon/search.png" alt=""></a></li>-->
+<!--              </ul>-->
+          </div>
             <div class="product__item__text">
               <h6 th:text="${y.product_Name}"></h6>
               <a th:href="@{/addToCart/{id}(id=${y.id})}" class="add-cart">+
@@ -202,23 +209,23 @@
               </div>
             </div>
           </div>
-        </div>
+
       </th:block>
+
       <th:block th:each="y : ${Top12ProductNewArrivals}">
         <div
                 class="col-lg-3 col-md-6 col-sm-6 col-md-6 col-sm-6 mix new-arrivals">
           <div class="product__item">
-            <div class="product__item__pic set-bg"
-                 th:data-setbg="${y.productImage[0].url_Image}">
-              <span class="label">New</span>
-              <ul class="product__hover">
-                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                <li><a href="#"><img src="img/icon/compare.png" alt="">
-                  <span>Compare</span></a></li>
-                <li><a th:href="@{/productDetail/{id}(id=${y.id})}"><img
-                        src="img/icon/search.png" alt=""></a></li>
-              </ul>
-            </div>
+            <th:block th:each="image : ${y.productImage}">
+              <div class="product__item__pic set-bg" th:if="${image.url_Image != null}" th:data-setbg="${image.url_Image}">
+                <span class="label">Hot</span>
+                <ul class="product__hover">
+                  <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
+                  <li><a href="#"><img src="img/icon/compare.png" alt=""><span>Compare</span></a></li>
+                  <li><a th:href="@{/productDetail/{id}(id=${y.id})}"><img src="img/icon/search.png" alt=""></a></li>
+                </ul>
+              </div>
+            </th:block>
             <div class="product__item__text">
               <h6 th:text="${y.product_Name}"></h6>
               <a th:href="@{/addToCart/{id}(id=${y.id})}"

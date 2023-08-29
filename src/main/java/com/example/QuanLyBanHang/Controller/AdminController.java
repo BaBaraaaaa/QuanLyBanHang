@@ -169,62 +169,7 @@ public class AdminController {
         }
     }
     //
-    @GetMapping("/dashboard-myproducts/edit/{id}")
-    public String DashboardMyProductEditView(@PathVariable int id, Model model) {
-        User admin = (User) session.getAttribute("admin");
-        if (admin == null) {
-            return "redirect:/signin-admin";
-        } else {
-            List<Category> listCategories = categoryService.findAll();
-            Product product = productService.getProductById(id);
-            model.addAttribute("product", product);
-            model.addAttribute("listCategories", listCategories);
-            String editProduct = (String) session.getAttribute("editProduct");
-            model.addAttribute("editProduct", editProduct);
-            session.setAttribute("editProduct", null);
-            return "dashboard-my-products-edit";
-        }
-    }
-    @PostMapping("/dashboard-myproducts/edit")
-    public String DashboardMyProductEditHandel(Model model, @ModelAttribute("product_id") int product_id,
-            @ModelAttribute("product_name") String product_name, @ModelAttribute("price") String price,
-            @ModelAttribute("availability") String availability, @ModelAttribute("category") int category,
-            @ModelAttribute("description") String description, @ModelAttribute("listImage") MultipartFile[] listImage)
-            throws Exception {
-        User admin = (User) session.getAttribute("admin");
-        if (admin == null) {
-            return "redirect:/signin-admin";
-        } else {
-            if (listImage != null) {
-                Category cate = categoryService.getCategoryById(category);
-                Product product = productService.getProductById(product_id);
-//				System.out.println(cate);
-//				long millis = System.currentTimeMillis();
-//				Date create_at = new java.sql.Date(millis);
-//				Product newPro = new Product();
-                product.setProduct_Name(product_name);
-                product.setPrice(Integer.parseInt(price));
-                product.setQuantity(Integer.parseInt(availability));
-                product.setCategory(cate);
-                product.setDescription(description);
-                productService.saveProduct(product);
-                for (MultipartFile y : listImage) {
-                    if (!y.isEmpty()) {
-                        String urlImg = cloudinary.uploadFile(y);
-                        ProductImage img = new ProductImage();
-                        img.setProduct(product);
-                        img.setUrl_Image(urlImg);
-                        productImageService.save(img);
-                    }
-                }
-                session.setAttribute("editProduct", "editProductSuccess");
-                return "redirect:/dashboard-myproducts/edit/" + product_id;
-            } else {
-                return "redirect:/dashboard-myproducts/edit/" + product_id;
-            }
 
-        }
-    }
     @GetMapping("/dashboard-addproduct")
     public String DashboardAddProductView(Model model) {
         User admin = (User) session.getAttribute("admin");
@@ -235,10 +180,6 @@ public class AdminController {
             model.addAttribute("addProduct", addProduct);
             session.setAttribute("addProduct", null);
             List<Category> listCategories = categoryService.findAll();
-//            if (listCategories.size() ==0)
-//            {
-//                listCategories.add(new Category(0,"Chưa có gì",null));
-//            }
             model.addAttribute("listCategories", listCategories);
             return "dashboard-addproduct";
         }
@@ -268,8 +209,10 @@ public class AdminController {
                 newPro.setQuantity(Integer.parseInt(availability));
                 newPro.setSold(0);
                 newPro.setCategory(cate);
+                //save lại trước sau đó mới lưu ảnh
                 productService.saveProduct(newPro);
                newPro = productService.getProductById(newPro.getId());
+               //search trong MultipartFile
                 for (MultipartFile y : listImage) {
                     String urlImg = cloudinary.uploadFile(y);
                     ProductImage img = new ProductImage();
@@ -285,4 +228,68 @@ public class AdminController {
 
         }
     }
+    @GetMapping("/dashboard-myproducts/edit/{id}")
+    public String DashboardMyProductEditView(@PathVariable int id, Model model) {
+        User admin = (User) session.getAttribute("admin");
+        if (admin == null) {
+            return "redirect:/signin-admin";
+        } else {
+            List<Category> listCategories = categoryService.findAll();
+            Product product = productService.getProductById(id);
+            model.addAttribute("product", product);
+            model.addAttribute("listCategories", listCategories);
+            String editProduct = (String) session.getAttribute("editProduct");
+            model.addAttribute("editProduct", editProduct);
+            session.setAttribute("editProduct", null);
+            return "dashboard-my-products-edit";
+        }
+    }
+    @PostMapping("/dashboard-myproducts/edit")
+    public String DashboardMyProductEditHandel(Model model,
+                                               @ModelAttribute("product_id") int product_id,
+                                               @ModelAttribute("product_name") String product_name,
+                                               @ModelAttribute("price") String price,
+                                               @ModelAttribute("availability") String availability,
+                                               @ModelAttribute("category") int category,
+                                               @ModelAttribute("description") String description,
+                                               @ModelAttribute("listImage") MultipartFile[] listImage)
+            throws Exception
+    {
+        User admin = (User) session.getAttribute("admin");
+        if (admin == null) {
+            return "redirect:/signin-admin";
+        } else {
+            if (listImage != null) {
+                Category cate = categoryService.getCategoryById(category);
+                Product product = productService.getProductById(product_id);
+                product.setProduct_Name(product_name);
+                product.setPrice(Integer.parseInt(price));
+                product.setQuantity(Integer.parseInt(availability));
+                product.setCategory(cate);
+                product.setDescription(description);
+                productService.saveProduct(product);
+                for (MultipartFile y : listImage) {
+                    if (!y.isEmpty()) {
+                        String urlImg = cloudinary.uploadFile(y);
+                        ProductImage img = new ProductImage();
+                        img.setProduct(product);
+                        img.setUrl_Image(urlImg);
+                        productImageService.save(img);
+                    }
+                }
+                session.setAttribute("editProduct", "editProductSuccess");
+                return "redirect:/dashboard-myproducts/edit/" + product_id;
+            } else {
+                return "redirect:/dashboard-myproducts/edit/" + product_id;
+            }
+
+        }
+    }
+    @GetMapping("/dashboard-myproducts/delete/{id}")
+    public String DeleteProduct(@PathVariable int id, HttpServletRequest request) {
+        String referer = request.getHeader("Referer");
+        productService.deleteProductById(id);
+        return "redirect:"+referer;
+    }
+
 }

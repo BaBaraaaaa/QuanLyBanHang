@@ -1,5 +1,6 @@
 package com.example.QuanLyBanHang.Controller;
 
+
 import com.example.QuanLyBanHang.entity.Cart;
 import com.example.QuanLyBanHang.entity.Category;
 import com.example.QuanLyBanHang.entity.Product;
@@ -75,6 +76,7 @@ public class ProductController {
 
         //trả về 12 sản phẩm mới
         List<Product> Top12ProductNewArrivals = productService.findTop12ProductNewArrivals();
+
         model.addAttribute("Top12ProductNewArrivals", Top12ProductNewArrivals);
         return "index";
     }
