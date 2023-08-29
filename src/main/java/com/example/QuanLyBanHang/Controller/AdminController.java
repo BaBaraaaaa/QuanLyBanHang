@@ -1,6 +1,7 @@
 package com.example.QuanLyBanHang.Controller;
 
 import com.cloudinary.Cloudinary;
+import com.example.QuanLyBanHang.Dto.CategoryDto;
 import com.example.QuanLyBanHang.entity.*;
 import com.example.QuanLyBanHang.service.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -188,7 +190,7 @@ public class AdminController {
     public String DashboardAddProductHandel
             (Model model, @ModelAttribute("product_name") String product_name,
             @ModelAttribute("price") String price, @ModelAttribute("availability") String availability,
-            @ModelAttribute("category") int category, @ModelAttribute("description") String description,
+            @ModelAttribute("category_id") int category, @ModelAttribute("description") String description,
             @ModelAttribute("listImage") MultipartFile[] listImage) throws Exception {
         User admin = (User) session.getAttribute("admin");
         if (admin == null) {
@@ -196,7 +198,7 @@ public class AdminController {
         } else {
             if (listImage != null) {
                 Category cate = categoryService.getCategoryById(category);
-                System.out.println(cate);
+                System.out.println(cate.getId() + "" + cate.getCategory_Name());
                 long millis = System.currentTimeMillis();
                 Date create_at = new java.sql.Date(millis);
                 Product newPro = new Product();
@@ -290,6 +292,124 @@ public class AdminController {
         String referer = request.getHeader("Referer");
         productService.deleteProductById(id);
         return "redirect:"+referer;
+    }
+    @GetMapping("/dashboard-myproducts/delete-image/{id}")
+    public String DeleteImage(@PathVariable int id, HttpServletRequest request) {
+        String referer = request.getHeader("Referer");
+        productImageService.deleteById(id);
+        return "redirect:"+referer;
+    }
+    // tìm kiếm trang
+    @GetMapping("dashboard-myproducts/{page}")
+    public String DashboardMyProductPageView(@PathVariable int page, Model model) {
+        User admin = (User) session.getAttribute("admin");
+        if (admin == null) {
+            return "redirect:/signin-admin";
+        } else {
+            List<Category> listCategories = categoryService.findAll();
+            Pageable pageable = PageRequest.of(page, 3);
+            Page<Product> pageProduct = productService.findAll(pageable);
+            model.addAttribute("pageProduct", pageProduct);
+            model.addAttribute("listCategories", listCategories);
+            return "dashboard-myproducts";
+        }
+
+    }
+    @GetMapping("/dashboard-myproduct/search/{page}")
+    public String DashboardMyproductSearchPage(@PathVariable int page, Model model) {
+        User admin = (User) session.getAttribute("admin");
+        if (admin == null) {
+            return "redirect:/signin-admin";
+        } else {
+            String search_input = (String) session.getAttribute("search_input_dashboard");
+            int category_selected = (int) session.getAttribute("category_selected");
+//			int category_selected = 0;
+            Page<Product> pageProduct = null;
+            Pageable pageable = PageRequest.of(page, 3);
+            if (category_selected > 0) {
+                pageProduct = productService.findByProduct_NameAndCategory_idContaining(search_input, category_selected,
+                        pageable);
+            } else {
+                pageProduct = productService.findByProduct_NameContaining(search_input, pageable);
+            }
+            List<Category> listCategories = categoryService.findAll();
+            model.addAttribute("pageProduct", pageProduct);
+            model.addAttribute("listCategories", listCategories);
+            model.addAttribute("search_dashboard", "search_dashboard");
+            model.addAttribute("search_input", search_input);
+            model.addAttribute("category_selected", category_selected);
+            session.setAttribute("search_input_dashboard", search_input);
+            return "dashboard-myproducts";
+        }
+    }
+    @GetMapping("dashboard-myprofile")
+    public String DashboardMyProfile(Model model) {
+        User admin = (User) session.getAttribute("admin");
+        if (admin == null) {
+            return "redirect:/signin-admin";
+        } else {
+            String error_change_pass = (String) session.getAttribute("error_change_pass");
+            String ChangePassSuccess = (String) session.getAttribute("ChangePassSuccess");
+            String messageChangeProfile = (String) session.getAttribute("messageChangeProfile");
+            model.addAttribute("messageChangeProfile", messageChangeProfile);
+            model.addAttribute("error_change_pass", error_change_pass);
+            model.addAttribute("ChangePassSuccess", ChangePassSuccess);
+            session.setAttribute("error_change_pass", null);
+            session.setAttribute("ChangePassSuccess", null);
+            session.setAttribute("messageChangeProfile", null);
+            model.addAttribute("admin", admin);
+            return "dashboard-my-profile";
+        }
+    }
+    @PostMapping("/dashboard-myprofile/changepassword")
+    public String DashboardChangePassword(Model model, @ModelAttribute("current_password") String current_password,
+                                          @ModelAttribute("new_password") String new_password,
+                                          @ModelAttribute("confirm_password") String confirm_password, HttpServletRequest request) {
+        String referer = request.getHeader("Referer");
+        User admin = (User) session.getAttribute("admin");
+        if (admin == null) {
+            return "redirect:/signin-admin";
+        } else {
+            String decodedValue = new String(Base64.getDecoder().decode(admin.getPassword()));
+            if (!decodedValue.equals(current_password)) {
+                session.setAttribute("error_change_pass", "Current Password not correct!");
+                return "redirect:/dashboard-myprofile";
+            } else {
+
+                if (!new_password.equals(confirm_password)) {
+                    session.setAttribute("error_change_pass", "Confirm New Password not valid!");
+                    return "redirect:/dashboard-myprofile";
+                } else {
+                    String encodedValue = Base64.getEncoder().encodeToString(new_password.getBytes());
+                    admin.setPassword(encodedValue);
+                    userService.saveUser(admin);
+                    session.setAttribute("admin", admin);
+                }
+            }
+            session.setAttribute("ChangePassSuccess", "ChangePassSuccess");
+            return "redirect:" + referer;
+        }
+    }
+    @PostMapping("/dashboard-myprofile/changeProfile")
+    public String ChangeProfile(Model model, @ModelAttribute("avatar") MultipartFile avatar,
+                                @ModelAttribute("fullname") String fullname, @ModelAttribute("phone") String phone,
+                                @ModelAttribute("email") String email) throws IOException {
+        User admin = (User) session.getAttribute("admin");
+        if (admin == null) {
+            return "redirect:/signin-admin";
+        } else {
+            if (!avatar.isEmpty()) {
+                String url = cloudinary.uploadFile(avatar);
+                admin.setAvatar(url);
+            }
+            admin.setUser_Name(fullname);
+            admin.setEmail(email);
+            admin.setPhone_Number(phone);
+            userService.saveUser(admin);
+            session.setAttribute("admin", admin);
+            session.setAttribute("messageChangeProfile", "Change Success.");
+            return "redirect:/dashboard-myprofile";
+        }
     }
 
 }

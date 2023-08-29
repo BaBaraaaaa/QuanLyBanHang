@@ -242,7 +242,7 @@
                 <div class="col-lg-6 col-md-12">
                     <div class="dashboard-list-box invoices with-icons margin-top-20" >
                         <h4>Recent Orders</h4>
-                        <ul th:if="${!recentOrders==null}">
+                        <ul th:if="${recentOrders!=null}">
                             <th:block th:each="y : ${recentOrders}">
                                 <li><i class="list-box-icon sl sl-icon-doc"></i> <strong th:text="${y.user.user_Name}"></strong>
                                     <ul>
@@ -260,7 +260,7 @@
                             </th:block>
 
                         </ul>
-<!--                        <div th:if="${recentOrders ==null}">Không có đơn hàng nào được đặt</div>-->
+                        <ul th:if="${recentOrders ==null}">Không có đơn hàng nào được đặt</ul>
                     </div>
                 </div>
             </div>
