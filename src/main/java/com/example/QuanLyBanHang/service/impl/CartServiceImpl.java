@@ -1,7 +1,9 @@
 package com.example.QuanLyBanHang.service.impl;
 
 import com.example.QuanLyBanHang.entity.Cart;
+import com.example.QuanLyBanHang.entity.User;
 import com.example.QuanLyBanHang.repository.CartRepository;
+import com.example.QuanLyBanHang.repository.UserRepository;
 import com.example.QuanLyBanHang.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,8 @@ import java.util.List;
 public class CartServiceImpl implements CartService {
     @Autowired
     CartRepository cartRepository;
+    @Autowired
+    UserRepository userRepository;
     @Override
     public void deleteById(int id) {
 
@@ -23,6 +27,9 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void saveCart(Cart cart) {
+        cartRepository.save(cart);
 
     }
+
+
 }

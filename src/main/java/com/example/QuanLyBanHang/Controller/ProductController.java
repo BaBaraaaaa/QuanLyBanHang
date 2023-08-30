@@ -64,6 +64,7 @@ public class ProductController {
         {
             List<Cart> listCart = cartService.GetAllCartByUser_id(acc.getId());
             session.setAttribute("countCart", listCart.size());
+            session.setAttribute("AddToCartErr", null);
 
         }
         if (session.getAttribute("acc") == null)

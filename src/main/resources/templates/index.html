@@ -151,8 +151,12 @@
 
 <script th:if="${session.AddToCartErr != null}">
 		swal("Lỗi", "Vui lòng đăng nhập trước khi thực hiện thao tác!", "error");
-	</script>
-<p th:if="${session.AddToCartErr != null}" th:text="${#session.setAttribute('AddToCartErr', null)}" style="display: none;"></p>
+</script>
+<!--<p th:if="${session.AddToCartErr != null}" th:text="${#session.setAttribute('AddToCartErr', null)}" style="display: none;"></p>-->
+<p th:if="${session.AddToCartErr != null}"
+   th:text="${session.AddToCartErr}"
+   style="display: none;"></p>
+
 <section class="product spad">
   <div class="container">
     <div class="row">
