@@ -213,9 +213,21 @@
 									<div class="buttons-to-right">
 										<a th:href="@{/dashboard-myproducts/edit/{id}(id=${y.id})}" class="button gray"><i
 												class="sl sl-icon-note"></i> Edit</a>
-										<a th:href="@{/dashboard-myproducts/delete/{id}(id=${y.id})}"
+										<!-- <a th:href="@{/dashboard-myproducts/delete/{id}(id=${y.id})}"
 										 class="button gray"><i class="sl sl-icon-close"></i>
-										Delete</a>
+										Delete</a> -->
+										<a href="#" class="button gray" onclick="confirmDelete('${y.id}');">
+											<i class="sl sl-icon-close"></i> Delete
+										</a>
+										
+										<script>
+										function confirmDelete(productId) {
+											if (confirm("Bạn có chắc muốn xóa sản phẩm này?")) {
+												// Nếu người dùng xác nhận xóa
+												window.location.href = `/dashboard-myproducts/delete/${productId}`;
+											}
+										}
+										</script>
 									</div>
 
 								</li>

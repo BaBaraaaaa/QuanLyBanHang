@@ -88,8 +88,8 @@ public class AdminController {
                 {
                     //session tạm thời lưu thông tin người dùng là quản trị viên
                     session.setAttribute("admin", user);
-                    return "redirect:dashboard";
-
+//                    return "redirect:dashboard1";
+                    return "redirect:dashboard/index";
 
 
                 }
@@ -97,7 +97,7 @@ public class AdminController {
         }
         return "redirect:signin-admin";
     }
-    @GetMapping("dashboard")
+    @GetMapping("dashboard/index")
     public String DashboardView(Model model) {
         User admin = (User) session.getAttribute("admin");
         if (admin == null) {
@@ -122,7 +122,7 @@ public class AdminController {
             model.addAttribute("Total_User", listUser.size());
             model.addAttribute("Total_Category", listCategory.size());
             model.addAttribute("recentOrders", recentOrders);
-            return "dashboard";
+            return "dashboard/index";
         }
     }
 
@@ -154,7 +154,8 @@ public class AdminController {
         }
     }
     // list product đã thêm
-    @GetMapping("dashboard-myproducts")
+    // @GetMapping("dashboardmyproducts")
+    @GetMapping("dashboard/myproducts")
     public String DashboardMyProductView(Model model) {
         User admin = (User) session.getAttribute("admin");
         if (admin == null) {
@@ -167,12 +168,13 @@ public class AdminController {
             model.addAttribute("pageProduct", pageProduct);
             model.addAttribute("listProduct",productList);
             model.addAttribute("listCategories", listCategories);
-            return "dashboard-myproducts";
+            // return "dashboard-myproducts";
+            return "dashboard/myproducts";
         }
     }
     //
 
-    @GetMapping("/dashboard-addproduct")
+    @GetMapping("dashboard/addproduct")
     public String DashboardAddProductView(Model model) {
         User admin = (User) session.getAttribute("admin");
         if (admin == null) {
@@ -183,10 +185,10 @@ public class AdminController {
             session.setAttribute("addProduct", null);
             List<Category> listCategories = categoryService.findAll();
             model.addAttribute("listCategories", listCategories);
-            return "dashboard-addproduct";
+            return "dashboard/addproduct";
         }
     }
-    @PostMapping("dashboard-addproduct")
+    @PostMapping("dashboard/addproduct")
     public String DashboardAddProductHandel
             (Model model, @ModelAttribute("product_name") String product_name,
             @ModelAttribute("price") String price, @ModelAttribute("availability") String availability,
@@ -223,9 +225,11 @@ public class AdminController {
                     productImageService.save(img);
                 }
                 session.setAttribute("addProduct", "addProductSuccess");
-                return "redirect:/dashboard-addproduct";
+                // return "redirect:dashboard/addproduct";
+                 return "dashboard/addproduct";
             } else {
-                return "redirect:/dashboard-addproduct";
+                // return "redirect:dashboard/addproduct";
+                return "dashboard/addproduct";
             }
 
         }

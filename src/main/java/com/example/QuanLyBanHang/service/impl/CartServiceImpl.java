@@ -17,6 +17,7 @@ public class CartServiceImpl implements CartService {
     UserRepository userRepository;
     @Override
     public void deleteById(int id) {
+        cartRepository.deleteById(id);
 
     }
 
