@@ -141,7 +141,7 @@ public class AdminController {
         return "dashboard-invoice";
     }
     // order
-    @GetMapping("/dashboard-orders")
+    @GetMapping("dashboard/orders")
     public String DashboardOrderView(Model model) {
         User admin = (User) session.getAttribute("admin");
         if (admin == null) {
@@ -150,9 +150,40 @@ public class AdminController {
             Pageable pageable = PageRequest.of(0, 3);
             Page<Order> pageOrder = orderService.findAll(pageable);
             model.addAttribute("pageOrder", pageOrder);
-            return "dashboard-orders";
+            return "dashboard/orders";
         }
     }
+    @GetMapping("/delete-order/{id}")
+	public String DeleteOrder(@PathVariable int id, Model model, HttpServletRequest request) throws Exception {
+		User admin = (User) session.getAttribute("admin");
+		if (admin == null) {
+			return "redirect:/signin-admin";
+		} else {
+			String referer = request.getHeader("Referer");
+			Order order = orderService.findById(id);
+			System.out.println(order);
+			if (order != null) {
+				for (Order_Item y : order.getOrder_Item()) {
+					order_ItemService.deleteById(y.getId());
+				}
+				orderService.deleteById(id);
+			}
+			return "redirect:" + referer;
+		}
+	}
+    //phân trang orders
+    @GetMapping("/dashboard/orders/{page}")
+	public String DashboardOrderPageView(@PathVariable int page, Model model) {
+		User admin = (User) session.getAttribute("admin");
+		if (admin == null) {
+			return "redirect:/signin-admin";
+		} else {
+			Pageable pageable = PageRequest.of(page, 3);
+			Page<Order> pageOrder = orderService.findAll(pageable);
+			model.addAttribute("pageOrder", pageOrder);
+			return "dashboard/orders";
+		}
+	}
     // list product đã thêm
     // @GetMapping("dashboardmyproducts")
     @GetMapping("dashboard/myproducts")
@@ -174,7 +205,7 @@ public class AdminController {
     }
     //
 
-    @GetMapping("dashboard/addproduct")
+    @GetMapping( "dashboard/addproduct")
     public String DashboardAddProductView(Model model) {
         User admin = (User) session.getAttribute("admin");
         if (admin == null) {
@@ -185,10 +216,10 @@ public class AdminController {
             session.setAttribute("addProduct", null);
             List<Category> listCategories = categoryService.findAll();
             model.addAttribute("listCategories", listCategories);
-            return "dashboard/addproduct";
+            return "/dashboard/addproduct";
         }
     }
-    @PostMapping("dashboard/addproduct")
+    @PostMapping( "dashboard/addproduct")
     public String DashboardAddProductHandel
             (Model model, @ModelAttribute("product_name") String product_name,
             @ModelAttribute("price") String price, @ModelAttribute("availability") String availability,
@@ -226,15 +257,15 @@ public class AdminController {
                 }
                 session.setAttribute("addProduct", "addProductSuccess");
                 // return "redirect:dashboard/addproduct";
-                 return "dashboard/addproduct";
+                 return "redirect:/dashboard/addproduct";
             } else {
                 // return "redirect:dashboard/addproduct";
-                return "dashboard/addproduct";
+                return "redirect:/dashboard/addproduct";
             }
 
         }
     }
-    @GetMapping("/dashboard-myproducts/edit/{id}")
+    @GetMapping("dashboard/editproduct/{id}")
     public String DashboardMyProductEditView(@PathVariable int id, Model model) {
         User admin = (User) session.getAttribute("admin");
         if (admin == null) {
@@ -247,10 +278,10 @@ public class AdminController {
             String editProduct = (String) session.getAttribute("editProduct");
             model.addAttribute("editProduct", editProduct);
             session.setAttribute("editProduct", null);
-            return "dashboard-my-products-edit";
+            return "/dashboard/editproduct";
         }
     }
-    @PostMapping("/dashboard-myproducts/edit")
+    @PostMapping("dashboard/editproduct")
     public String DashboardMyProductEditHandel(Model model,
                                                @ModelAttribute("product_id") int product_id,
                                                @ModelAttribute("product_name") String product_name,
@@ -284,27 +315,27 @@ public class AdminController {
                     }
                 }
                 session.setAttribute("editProduct", "editProductSuccess");
-                return "redirect:/dashboard-myproducts/edit/" + product_id;
+                return "redirect:/dashboard/editproduct/" + product_id;
             } else {
-                return "redirect:/dashboard-myproducts/edit/" + product_id;
+                return "redirect:/dashboard/editproduct/" + product_id;
             }
 
         }
     }
-    @GetMapping("/dashboard-myproducts/delete/{id}")
+    @GetMapping("/dashboard/myproducts/delete/{id}")
     public String DeleteProduct(@PathVariable int id, HttpServletRequest request) {
         String referer = request.getHeader("Referer");
         productService.deleteProductById(id);
         return "redirect:"+referer;
     }
-    @GetMapping("/dashboard-myproducts/delete-image/{id}")
+    @GetMapping("/dashboard/myproducts/delete-image/{id}")
     public String DeleteImage(@PathVariable int id, HttpServletRequest request) {
         String referer = request.getHeader("Referer");
         productImageService.deleteById(id);
         return "redirect:"+referer;
     }
     // tìm kiếm trang
-    @GetMapping("dashboard-myproducts/{page}")
+    @GetMapping("dashboard/myproducts/{page}")
     public String DashboardMyProductPageView(@PathVariable int page, Model model) {
         User admin = (User) session.getAttribute("admin");
         if (admin == null) {
@@ -315,11 +346,11 @@ public class AdminController {
             Page<Product> pageProduct = productService.findAll(pageable);
             model.addAttribute("pageProduct", pageProduct);
             model.addAttribute("listCategories", listCategories);
-            return "dashboard-myproducts";
+            return "dashboard/myproducts";
         }
 
     }
-    @GetMapping("/dashboard-myproduct/search/{page}")
+    @GetMapping("/dashboard/myproduct/search/{page}")
     public String DashboardMyproductSearchPage(@PathVariable int page, Model model) {
         User admin = (User) session.getAttribute("admin");
         if (admin == null) {
@@ -346,7 +377,7 @@ public class AdminController {
             return "dashboard-myproducts";
         }
     }
-    @GetMapping("dashboard-myprofile")
+    @GetMapping("dashboard/myprofile")
     public String DashboardMyProfile(Model model) {
         User admin = (User) session.getAttribute("admin");
         if (admin == null) {
@@ -362,10 +393,10 @@ public class AdminController {
             session.setAttribute("ChangePassSuccess", null);
             session.setAttribute("messageChangeProfile", null);
             model.addAttribute("admin", admin);
-            return "dashboard-my-profile";
+            return "dashboard/myprofile";
         }
     }
-    @PostMapping("/dashboard-myprofile/changepassword")
+    @PostMapping("/dashboard/myprofile/changepassword")
     public String DashboardChangePassword(Model model, @ModelAttribute("current_password") String current_password,
                                           @ModelAttribute("new_password") String new_password,
                                           @ModelAttribute("confirm_password") String confirm_password, HttpServletRequest request) {
@@ -394,7 +425,7 @@ public class AdminController {
             return "redirect:" + referer;
         }
     }
-    @PostMapping("/dashboard-myprofile/changeProfile")
+    @PostMapping("/dashboard/myprofile/changeProfile")
     public String ChangeProfile(Model model, @ModelAttribute("avatar") MultipartFile avatar,
                                 @ModelAttribute("fullname") String fullname, @ModelAttribute("phone") String phone,
                                 @ModelAttribute("email") String email) throws IOException {
@@ -412,7 +443,7 @@ public class AdminController {
             userService.saveUser(admin);
             session.setAttribute("admin", admin);
             session.setAttribute("messageChangeProfile", "Change Success.");
-            return "redirect:/dashboard-myprofile";
+            return "redirect:/dashboard/myprofile";
         }
     }
 
